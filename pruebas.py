@@ -184,41 +184,41 @@ sender = load_account_from_mnemonic(mnemonic_phrase)
 sk = "{}".format(mnemonic.to_private_key(mnemonic_phrase))
 sk1 = "{}".format(mnemonic.to_private_key(mnemonic_phrase1))
 
-# Create an asset with certificate schema
-# total_supply = 1000000
-# asset_name = "Food Asset"
-# asset_unit = "FA"
-# asset_url = "https://example.com/food_asset"
+#Create an asset with certificate schema
+total_supply = 1000000
+asset_name = "Food Asset"
+asset_unit = "FA"
+asset_url = "https://example.com/food_asset"
 
-# certificate_schema = {
-#     "certificate_type": "Food Safety",
-#     "expiry_date": "2023-12-31",
-#     "issuer": "Certification Authority"
-# }
+certificate_schema = {
+    "certificate_type": "Food Safety",
+    "expiry_date": "2023-12-31",
+    "issuer": "Certification Authority"
+}
 
-#asset_id = create_asset(sender, total_supply, asset_name, asset_unit, asset_url, certificate_schema)
+asset_id = create_asset(sender, total_supply, asset_name, asset_unit, asset_url, certificate_schema)
 asset_id="VLY2QSOS3AKLUAZU2DXZGEOR3644CZIBBCDB7MS2IETKTAX3LKPA"
 print(f"Asset created with ID: {asset_id}")
 
-# # Create a product certificate
-# product_id = "Product123"
-# certificate_data = {
-#     "certificate_type": "Food Safety",
-#     "expiry_date": "2023-12-31",
-#     "issuer": "Certification Authority"
-# }
-# create_product_certificate(sender, asset_id, product_id, certificate_data)
-# print("Product certificate created.")
+# Create a product certificate
+product_id = "Product123"
+certificate_data = {
+    "certificate_type": "Food Safety",
+    "expiry_date": "2023-12-31",
+    "issuer": "Certification Authority"
+}
+create_product_certificate(sender, asset_id, product_id, certificate_data)
+print("Product certificate created.")
 
 # Define the transport route
 route_name = "Route1"
-# waypoints = ["Location A", "Location B", "Location C", "Location D"]
+waypoints = ["Location A", "Location B", "Location C", "Location D"]
 
-# # Create the transport route
-# create_transport_route(sender, route_name, waypoints)
-# print("Transport route created successfully.")
+# Create the transport route
+create_transport_route(sender, route_name, waypoints)
+print("Transport route created successfully.")
 
-# Transfer the asset along with the product certificate using the defined route
+#Transfer the asset along with the product certificate using the defined route
 receiver_address = "MKA6TV22LKM34L4D64F6ICF34ECYWUILCW5E2VE6Y3KOSIBN34W232NNU4"
 amount = 100
 certificate_data = {

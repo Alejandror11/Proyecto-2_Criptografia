@@ -6,24 +6,6 @@ from algosdk.transaction import *
 
 class Blockchain:
     def __init__(self):
-        # Iniciar cuentas con las direcciones
-        addressProductor = "5TKAKOOFDXZYZVFMQ5ZPPROIUJT3UYLQQTUBPCDYWKMZNOPVSNP3XCAWZA"
-        addressPointA = "MKA6TV22LKM34L4D64F6ICF34ECYWUILCW5E2VE6Y3KOSIBN34W232NNU4"
-        addressPointB = "GMPUDHJVBZSR2Z3UDA4JPLPDN5O42W5GZJBECEEHMBOBHTIPMSYOODUMPY"
-        addressPointC = "LPUAYVXAXWMM4ZIFO3L6RMQJ23CTGMFBHBYSOKFOLDM5ZQXGEYZNI7KF5Y"
-        self.accounts = [addressProductor, addressPointA, addressPointB, addressPointC]
-
-        # Obtenemos las llaves privadas usando mnemónicos
-        mnemonicProdcutor = "slogan number extend agree hurry sibling fun pigeon test solar bottom coin swamp match disagree razor layer glimpse vault stone toast execute board absent shine"
-        mnemonicPointA = "glare boost oblige pipe injury author renew mountain valid lobster into refuse favorite crop light wink motion quality sleep jar smooth electric innocent able cigar"
-        mnemonicPointB = "shoulder party omit alley bus exotic agent history flame boring scissors loop must option market sock swim aerobic add easy chef gauge ghost abandon title"
-        mnemonicPointC = "cheese danger matrix rebel believe broccoli glory island tissue dash road dune silk draw rather glow field muscle order typical betray fine across above tube"
-        sk1 = "{}".format(mnemonic.to_private_key(mnemonicProdcutor))
-        sk2 = "{}".format(mnemonic.to_private_key(mnemonicPointA))
-        sk3 = "{}".format(mnemonic.to_private_key(mnemonicPointB))
-        sk4 = "{}".format(mnemonic.to_private_key(mnemonicPointC))
-        self.SKs = [sk1, sk2, sk3, sk4]
-
         #Conexión con el cliente con PureStake
         self.algod_client = algod.AlgodClient(
             algod_token="",
@@ -33,7 +15,7 @@ class Blockchain:
 
     #  Función de utilidad para imprimir el activo creado para la cuenta y el assetid
     def print_created_asset(self, account, assetid):
-        account_info = self.algodclient.account_info(account)
+        account_info = self.algod_client.account_info(account)
         idx = 0;
         for my_account_info in account_info['created-assets']:
             scrutinized_asset = account_info['created-assets'][idx]
@@ -45,7 +27,7 @@ class Blockchain:
 
     #Función de utilidad para imprimir la tenencia de activos para la cuenta y assetid
     def print_asset_holding(self, account, assetid):
-        account_info = self.algodclient.account_info(account)
+        account_info = self.algod_client.account_info(account)
         idx = 0
         for my_account_info in account_info['assets']:
             scrutinized_asset = account_info['assets'][idx]
@@ -60,25 +42,26 @@ class Blockchain:
         print("Point B address: {}".format(self.accounts[2]))
         print("Point C address: {}".format(self.accounts[3]))
 
-    def create_asset(self):
+    # Función para crear un activo
+    def create_asset(self,sender,skSender,total,unitName,assetName,manager,reserve,freeze,clawback,url):
         params = self.algod_client.suggested_params()
         params.fee = 1000
         params.flat_fee = True
 
         txn = AssetConfigTxn(
-            sender=self.accounts[0],
+            sender=sender,
             sp=params,
-            total=1000,
+            total=total,
             default_frozen=False,
-            unit_name="Ag",
-            asset_name="Aguacate",
-            manager=self.accounts[0],
-            reserve=self.accounts[0],
-            freeze=self.accounts[0],
-            clawback=self.accounts[0],
-            url="https://www.gob.mx/cms/uploads/attachment/file/257067/Potencial-Aguacate.pdf",
+            unit_name=unitName,
+            asset_name=assetName,
+            manager=manager,
+            reserve=reserve,
+            freeze=freeze,
+            clawback=clawback,
+            url=url,
             decimals=0)
-        stxn = txn.sign("{}".format(self.SKs[0]))
+        stxn = txn.sign("{}".format(skSender))
 
         try:
             txid = self.algod_client.send_transaction(stxn)
@@ -95,32 +78,167 @@ class Blockchain:
         try:
             ptx = self.algod_client.pending_transaction_info(txid)
             asset_id = ptx["asset-index"]
-            self.print_created_asset(self.algod_client, self.accounts[0], asset_id)
-            self.print_asset_holding(self.algod_client, self.accounts[0], asset_id)
+            self.print_created_asset(self.algod_client, sender, asset_id)
+            self.print_asset_holding(self.algod_client, sender, asset_id)
         except Exception as e:
             print(e)
     
     # Modificando un activo
-    def modify_asset(self,asset_id):
+    def modify_asset(self,sender,skSender,asset_id,manager,reserve,freeze,clawback):
         params = self.algod_client.suggested_params()
 
         txn = AssetConfigTxn(
-            sender=self.accounts[1],
+            sender=sender,
             sp=params,
             index=asset_id,
-            manager=accounts[0],
-            reserve=accounts[1],
-            freeze=accounts[1],
-            clawback=accounts[1])
-        stxn = txn.sign(SKs[1])
+            manager=manager,
+            reserve=reserve,
+            freeze=freeze,
+            clawback=clawback)
+        stxn = txn.sign(skSender)
 
         try:
-            txid = algod_client.send_transaction(stxn)
+            txid = self.algod_client.send_transaction(stxn)
             print("Signed transaction with txID: {}".format(txid))
-            confirmed_txn = wait_for_confirmation(algod_client, txid, 4)
+            confirmed_txn = wait_for_confirmation(self.algod_client, txid, 4)
             print("TXID: ", txid)
             print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
 
         except Exception as err:
             print(err)
-        print_created_asset(algod_client, accounts[0], asset_id)
+
+    # Función para optar por recibir un activo
+    def opt_in(self,receiver,skReceiver,asset_id):
+        params = self.algod_client.suggested_params()
+        account_info = self.algod_client.account_info(receiver)
+        holding = None
+        idx = 0
+        for my_account_info in account_info['assets']:
+            scrutinized_asset = account_info['assets'][idx]
+            idx = idx + 1
+            if (scrutinized_asset['asset-id'] == asset_id):
+                holding = True
+                break
+
+        if not holding:
+            txn = AssetTransferTxn(
+                sender=receiver,
+                sp=params,
+                receiver=receiver,
+                amt=0,
+                index=asset_id)
+            stxn = txn.sign(skReceiver)
+
+            try:
+                txid = self.algod_client.send_transaction(stxn)
+                print("Signed transaction with txID: {}".format(txid))
+                confirmed_txn = wait_for_confirmation(self.algod_client, txid, 4)
+                print("TXID: ", txid)
+                print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
+
+            except Exception as err:
+                print(err)
+            self.print_asset_holding(self.algod_client, receiver, asset_id)
+
+    # Transferir un activo
+    def transfer_asset(self,sender,skSender,receiver,amt,asset_id):
+        params = self.algod_client.suggested_params()
+
+        txn = AssetTransferTxn(
+            sender=sender,
+            sp=params,
+            receiver=receiver,
+            amt=amt,
+            index=asset_id)
+        stxn = txn.sign(skSender)
+
+        try:
+            txid = self.algod_client.send_transaction(stxn)
+            print("Signed transaction with txID: {}".format(txid))
+            confirmed_txn = wait_for_confirmation(self.algod_client, txid, 4)
+            print("TXID: ", txid)
+            print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
+
+        except Exception as err:
+            print(err)
+
+        self.print_asset_holding(self.algod_client, receiver, asset_id)
+
+    # Congelar un activo
+    def freeze_asset(self,sender,skSender,asset_id,target):
+        params = self.algod_client.suggested_params()
+
+        txn = AssetFreezeTxn(
+            sender=sender,
+            sp=params,
+            index=asset_id,
+            target=target,
+            new_freeze_state=True
+        )
+        stxn = txn.sign(skSender)
+
+        try:
+            txid = self.algod_client.send_transaction(stxn)
+            print("Signed transaction with txID: {}".format(txid))
+            confirmed_txn = wait_for_confirmation(self.algod_client, txid, 4)
+            print("TXID: ", txid)
+            print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
+        except Exception as err:
+            print(err)
+
+        self.print_asset_holding(self.algod_client, target, asset_id)
+
+    # Revocar un activo
+    def revocation_asset(self,sender,skSender,receiver,amt,asset_id,target):
+        params = self.algod_client.suggested_params()
+        txn = AssetTransferTxn(
+            sender=sender,
+            sp=params,
+            receiver=receiver,
+            amt=amt,
+            index=asset_id,
+            revocation_target=target
+        )
+        stxn = txn.sign(skSender)
+        try:
+            txid = self.algod_client.send_transaction(stxn)
+            print("Signed transaction with txID: {}".format(txid))
+            confirmed_txn = wait_for_confirmation(self.algod_client, txid, 4)
+            print("TXID: ", txid)
+            print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
+        except Exception as err:
+            print(err)
+
+        print("Account target")
+        self.print_asset_holding(self.algod_client, target, asset_id)
+
+        print("Account receiver")
+        self.print_asset_holding(self.algod_client, receiver, asset_id)
+
+    # Destruir un activo
+    def destroy_asset(self,sender,skSender,asset_id):
+        params = self.algod_client.suggested_params()
+
+        txn = AssetConfigTxn(
+            sender=sender,
+            sp=params,
+            index=asset_id,
+            strict_empty_address_check=False
+            )
+
+        stxn = txn.sign(skSender)
+
+        try:
+            txid = self.algod_client.send_transaction(stxn)
+            print("Signed transaction with txID: {}".format(txid))
+            confirmed_txn = wait_for_confirmation(self.algod_client, txid, 4)
+            print("TXID: ", txid)
+            print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
+        except Exception as err:
+            print(err)
+        try:
+            self.print_asset_holding(self.algod_client, sender, asset_id)
+            self.print_created_asset(self.algod_client, sender, asset_id)
+
+        except Exception as e:
+            print(e)
