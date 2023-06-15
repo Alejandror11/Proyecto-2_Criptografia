@@ -1,7 +1,7 @@
 import json
 import base64
+from algosdk import mnemonic
 from algosdk.v2client import algod
-from algosdk import account, mnemonic, encoding
 from algosdk.transaction import *
 
 class Blockchain:
@@ -37,11 +37,6 @@ class Blockchain:
                 print(json.dumps(scrutinized_asset, indent=4))
                 break
 
-        print("Productor address: {}".format(self.accounts[0]))
-        print("Point A address: {}".format(self.accounts[1]))
-        print("Point B address: {}".format(self.accounts[2]))
-        print("Point C address: {}".format(self.accounts[3]))
-
     # Función para crear un activo
     def create_asset(self,sender,skSender,total,unitName,assetName,manager,reserve,freeze,clawback,url):
         params = self.algod_client.suggested_params()
@@ -72,16 +67,6 @@ class Blockchain:
 
         except Exception as err:
             print(err)
-
-        print("Transaction information: {}".format(
-            json.dumps(confirmed_txn, indent=4)))
-        try:
-            ptx = self.algod_client.pending_transaction_info(txid)
-            asset_id = ptx["asset-index"]
-            self.print_created_asset(self.algod_client, sender, asset_id)
-            self.print_asset_holding(self.algod_client, sender, asset_id)
-        except Exception as e:
-            print(e)
     
     # Modificando un activo
     def modify_asset(self,sender,skSender,asset_id,manager,reserve,freeze,clawback):
@@ -121,6 +106,7 @@ class Blockchain:
                 break
 
         if not holding:
+            print("Not holding asset")
             txn = AssetTransferTxn(
                 sender=receiver,
                 sp=params,
@@ -138,7 +124,6 @@ class Blockchain:
 
             except Exception as err:
                 print(err)
-            self.print_asset_holding(self.algod_client, receiver, asset_id)
 
     # Transferir un activo
     def transfer_asset(self,sender,skSender,receiver,amt,asset_id):
@@ -161,8 +146,28 @@ class Blockchain:
 
         except Exception as err:
             print(err)
+    
+    def transfer_asset_schema(self,sender,skSender,receiver,amt,asset_id,data):
+        params = self.algod_client.suggested_params()
+        certificate_note = json.dumps(data)
+        txn = AssetTransferTxn(
+            sender=sender,
+            sp=params,
+            receiver=receiver,
+            amt=amt,
+            index=asset_id,
+            note=certificate_note.encode())
+        stxn = txn.sign(skSender)
 
-        self.print_asset_holding(self.algod_client, receiver, asset_id)
+        try:
+            txid = self.algod_client.send_transaction(stxn)
+            print("Signed transaction with txID: {}".format(txid))
+            confirmed_txn = wait_for_confirmation(self.algod_client, txid, 4)
+            print("TXID: ", txid)
+            print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
+
+        except Exception as err:
+            print(err)
 
     # Congelar un activo
     def freeze_asset(self,sender,skSender,asset_id,target):
@@ -186,8 +191,6 @@ class Blockchain:
         except Exception as err:
             print(err)
 
-        self.print_asset_holding(self.algod_client, target, asset_id)
-
     # Revocar un activo
     def revocation_asset(self,sender,skSender,receiver,amt,asset_id,target):
         params = self.algod_client.suggested_params()
@@ -208,12 +211,6 @@ class Blockchain:
             print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
         except Exception as err:
             print(err)
-
-        print("Account target")
-        self.print_asset_holding(self.algod_client, target, asset_id)
-
-        print("Account receiver")
-        self.print_asset_holding(self.algod_client, receiver, asset_id)
 
     # Destruir un activo
     def destroy_asset(self,sender,skSender,asset_id):
@@ -236,9 +233,3 @@ class Blockchain:
             print("Result confirmed in round: {}".format(confirmed_txn['confirmed-round']))
         except Exception as err:
             print(err)
-        try:
-            self.print_asset_holding(self.algod_client, sender, asset_id)
-            self.print_created_asset(self.algod_client, sender, asset_id)
-
-        except Exception as e:
-            print(e)
