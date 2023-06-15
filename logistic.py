@@ -4,7 +4,7 @@ from blockchain import *
 class Logistic:
     def __init__(self):
         # Definir id del activo
-        self.asset = [238629010]
+        self.asset = [239307206,239311940,239314493]
         # Iniciar cuentas con las direcciones
         addressProductor = "5TKAKOOFDXZYZVFMQ5ZPPROIUJT3UYLQQTUBPCDYWKMZNOPVSNP3XCAWZA"
         addressAuthority = "MQBCADL5BST4WNBSMKOT4TS6HAZNMMTNK2PREHRNVEJDDHLJ7L26GPRHLE"
@@ -26,13 +26,13 @@ class Logistic:
         self.SKs = [sk1, sk2, sk3, sk4, sk5]
         self.bc = Blockchain()
         self.directory ={"5TKAKOOFDXZYZVFMQ5ZPPROIUJT3UYLQQTUBPCDYWKMZNOPVSNP3XCAWZA":"México",
-                         "MQBCADL5BST4WNBSMKOT4TS6HAZNMMTNK2PREHRNVEJDDHLJ7L26GPRHLE":"Autoridad Certificadora",
-                         "MKA6TV22LKM34L4D64F6ICF34ECYWUILCW5E2VE6Y3KOSIBN34W232NNU4":"Estados Unidos",
+                         "MQBCADL5BST4WNBSMKOT4TS6HAZNMMTNK2PREHRNVEJDDHLJ7L26GPRHLE":"AutoridadCertificadora",
+                         "MKA6TV22LKM34L4D64F6ICF34ECYWUILCW5E2VE6Y3KOSIBN34W232NNU4":"EstadosUnidos",
                          "GMPUDHJVBZSR2Z3UDA4JPLPDN5O42W5GZJBECEEHMBOBHTIPMSYOODUMPY":"China",
                          "LPUAYVXAXWMM4ZIFO3L6RMQJ23CTGMFBHBYSOKFOLDM5ZQXGEYZNI7KF5Y":"Canada",
-                         238629010:"Aguacate",
-                         238629010:"Tomate",
-                         238629010:"Pimiento"}
+                         239307206:"Aguacate",
+                         239311940:"Tomate",
+                         239314493:"Pimiento"}
 
     def create_product(self,total,unitName,assetName,url):
         self.bc.create_asset(self.accounts[0],self.SKs[0],total,unitName,assetName,self.accounts[0],self.accounts[0],self.accounts[1],self.accounts[0],url)
@@ -43,6 +43,7 @@ class Logistic:
 
     def show_product_holding_network(self,asset_id):
         for i in range(0 ,len(self.accounts)):
+            print(self.directory[self.accounts[i]])
             self.bc.print_asset_holding(self.accounts[i],asset_id)
     
     def transfer_product(self,sender,skSender,receiver,amt,asset_id):
@@ -91,7 +92,7 @@ class Logistic:
         else:
             print("El producto no es uno que nosotros como entidad podamos validar")
         if enviar == True:
-            self.bc.transfer_asset_schema(sender,skSender,receiver,amt,asset_id,data)
+            self.bc.transfer_asset_schema(self.accounts[1],self.SKs[1],receiver,amt,asset_id,data)
             print("Producto exportado de {} correctamente a {}".format(self.directory[sender],self.directory[receiver]))
         else:
             self.transfer_product(self.accounts[1],self.SKs[1],sender,amt,asset_id)
@@ -99,4 +100,4 @@ class Logistic:
 
     def freeze_product(self,sender,skSender,asset_id,target):
         self.bc.freeze_asset(sender,skSender,asset_id,target)
-        print("Se han congelado el producto {} en el país {} debido a irregularidades detectadas".format(self.dictionary[asset_id],self.directory[target]))
+        print("Se han congelado el producto {} en el país {} debido a irregularidades detectadas".format(self.directory[asset_id],self.directory[target]))

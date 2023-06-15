@@ -35,6 +35,7 @@ class Blockchain:
             if (scrutinized_asset['asset-id'] == assetid):
                 print("Asset ID: {}".format(scrutinized_asset['asset-id']))
                 print(json.dumps(scrutinized_asset, indent=4))
+                print("\n")
                 break
 
     # Función para crear un activo
@@ -106,7 +107,6 @@ class Blockchain:
                 break
 
         if not holding:
-            print("Not holding asset")
             txn = AssetTransferTxn(
                 sender=receiver,
                 sp=params,

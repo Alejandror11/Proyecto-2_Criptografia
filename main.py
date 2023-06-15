@@ -8,7 +8,7 @@ def imprimir_productos():
         msj += str(i+1)
         msj += ": ID="
         msj += str(logistic.asset[i])
-        msj += ", ->"
+        msj += "->"
         msj += logistic.directory[logistic.asset[i]]
         if i < len(logistic.asset)-1:
             msj += "\n"
@@ -16,7 +16,7 @@ def imprimir_productos():
     print(msj)
 
 def imprimir_destinos():
-    print("*Estados Unidos")
+    print("*EstadosUnidos")
     print("*China")
     print("*Canada")
 
@@ -29,25 +29,31 @@ def ingresa_verifica_datos_O1():
     bandera = False
     cantidad = 0
     while bandera == False:
-        cantidad = input("Ingresa la cantidad total del producto")
+        cantidad = input("Ingresa la cantidad total del producto: ")
         if cantidad.isdigit():
             bandera = True
+        else:
+            print("No se ingresó un número. Intente otra vez")
     
     bandera = False
     unitName = ""
     while bandera == False:
-        unitName = input("Ingresa el nombre de la unidad del producto")
+        unitName = input("Ingresa el nombre de la unidad del producto: ")
         if unitName.isalpha():
             bandera = True
+        else:
+            print("No se ingreso un texto como nombre de la unidad del producto")
     
     bandera = False
     assetName = ""
     while bandera == False:
-        assetName = input("Ingresa el nombre del producto")
+        assetName = input("Ingresa el nombre del producto: ")
         if assetName.isalpha():
             bandera = True
+        else:
+            print("No se ingreso un texto como nombre de producto")
     
-    url = input("Ingresa un url con información del producto")
+    url = input("Ingresa un url con información del producto: ")
     
     return cantidad, unitName, assetName, url
 
@@ -56,32 +62,28 @@ def ingresa_verifica_datos_O2():
     asset_id = 0
     bandera = False
     while bandera == False:
-        asset_id = input("Ingresa el id del Producto")
+        asset_id = input("Ingresa el ID del producto: ")
         if asset_id.isdigit():
             for i in range(0, len(logistic.asset)):
-                if logistic.asset[i] == asset_id:
+                if logistic.asset[i] == int(asset_id):
                     bandera = True
                     break
-                else:
-                    print("El ID del producto no coincide con los mostrados. Intente otra vez")
         else:
             print("No se ingresó un número como ID")
     
-    return asset_id
+    return int(asset_id)
 
 def ingresa_verifica_datos_O3():
     imprimir_productos()
     asset_id = 0
     bandera = False
     while bandera == False:
-        asset_id = input("Ingresa el id del Producto")
+        asset_id = input("Ingresa el ID del Producto: ")
         if asset_id.isdigit():
             for i in range(0, len(logistic.asset)):
-                if logistic.asset[i] == asset_id:
+                if logistic.asset[i] == int(asset_id):
                     bandera = True
                     break
-                else:
-                    print("El ID del producto no coincide con los mostrados. Intente otra vez")
         else:
             print("No se ingresó un número como ID. Intente otra vez")
 
@@ -92,22 +94,21 @@ def ingresa_verifica_datos_O3():
     addressReceiver = ""
     bandera = False
     while bandera == False:
-        receiver = input("Ingresa el nombre de uno de los tres destinos mostrados")
+        receiver = input("Ingresa el nombre de uno de los tres destinos mostrados: ")
+        print(receiver)
         if receiver.isalpha():
             for c, r in logistic.directory.items():
                 if receiver == r:
                     addressReceiver = c
                     bandera = True
                     break
-                else:
-                    print("El nombre del prodcuto no coincide con los mostrados. Intente otra vez")
         else:
             print("No se ingresó un nombre en formato de texto. Intente otra vez")
 
     amt = 0
     bandera = False
     while bandera ==False:
-        amt = input("Ingresa el total de producto a transferir")
+        amt = input("Ingresa el total de producto a transferir: ")
         if amt.isdigit():
             bandera = True
         else:
@@ -123,7 +124,7 @@ def ingresa_verifica_datos_O3():
     tipo_certificado = 0
     bandera = False
     while bandera == False:
-        tipo_certificado = input("Ingresar la opción del certificado que cumple su producto")
+        tipo_certificado = input("Ingresar la opción del certificado que cumple su producto: ")
         if tipo_certificado.isdigit():
             if tipo_certificado == "1" or tipo_certificado == "2" or tipo_certificado == "3":
                 if tipo_certificado == "1":
@@ -162,25 +163,23 @@ def ingresa_verifica_datos_O3():
     data["Fecha_Cosecha"] = fecha_cosecha
     data["Fecha_Embalaje"] = fecha_embalaje
     
-    return sender, skSender, addressReceiver, amt, asset_id, data
+    return sender, skSender, addressReceiver, int(amt), int(asset_id), data
 
 def ingresa_verifica_datos_O4():
     imprimir_productos()
     asset_id = 0
     bandera = False
     while bandera == False:
-        asset_id = input("Ingresa el id del Producto")
+        asset_id = input("Ingresa el ID del producto: ")
         if asset_id.isdigit():
             for i in range(0, len(logistic.asset)):
-                if logistic.asset[i] == asset_id:
+                if logistic.asset[i] == int(asset_id):
                     bandera = True
                     break
-                else:
-                    print("El ID del producto no coincide con los mostrados. Intente otra vez")
         else:
             print("No se ingresó un número como ID")
     
-    return asset_id
+    return int(asset_id)
 
 def ingresa_verifica_datos_O5():
     sender = logistic.accounts[1]
@@ -190,14 +189,12 @@ def ingresa_verifica_datos_O5():
     asset_id = 0
     bandera = False
     while bandera == False:
-        asset_id = input("Ingresa el id del Producto")
+        asset_id = input("Ingresa el ID del producto: ")
         if asset_id.isdigit():
             for i in range(0, len(logistic.asset)):
-                if logistic.asset[i] == asset_id:
+                if logistic.asset[i] == int(asset_id):
                     bandera = True
                     break
-                else:
-                    print("El ID del producto no coincide con los mostrados. Intente otra vez")
         else:
             print("No se ingresó un número como ID")
         
@@ -206,19 +203,17 @@ def ingresa_verifica_datos_O5():
     addressTarget = ""
     bandera = False
     while bandera == False:
-        receiver = input("Ingresa el nombre de uno de los tres destinos como objetivo")
+        receiver = input("Ingresa el nombre de uno de los tres destinos como objetivo: ")
         if receiver.isalpha():
             for c, r in logistic.directory.items():
                 if receiver == r:
                     addressTarget = c
                     bandera = True
                     break
-                else:
-                    print("El nombre del prodcuto no coincide con los mostrados. Intente otra vez")
         else:
             print("No se ingresó un nombre en formato de texto. Intente otra vez")
     
-    return sender, skSender, asset_id, addressTarget
+    return sender, skSender, int(asset_id), addressTarget
     
 def main():
     while True:
