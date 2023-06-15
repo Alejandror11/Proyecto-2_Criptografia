@@ -16,7 +16,7 @@ class Blockchain:
     #  Función de utilidad para imprimir el activo creado para la cuenta y el assetid
     def print_created_asset(self, account, assetid):
         account_info = self.algod_client.account_info(account)
-        idx = 0;
+        idx = 0
         for my_account_info in account_info['created-assets']:
             scrutinized_asset = account_info['created-assets'][idx]
             idx = idx + 1
