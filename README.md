@@ -18,3 +18,6 @@ Descarga la versión de ejecutable que se adecue a tu sistema operativo.
 
  - Localiza la raíz del proyecto y ejecuta el intérprete
    `$ python3 main.py`
+
+## Explicación y funcimaniento del programa
+ - [Funcionamiento](https://drive.google.com/file/d/10vtTrWs7cUe1Y8cdKDf5TtT9a5CEpow-/view?usp=drive_link)
